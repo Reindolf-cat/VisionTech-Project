@@ -1,0 +1,172 @@
+// VisionTech University Application Database Schema
+// This schema handles student applications, OTP verification, and user management
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for applicants
+model User {
+  id        String   @id @default(cuid())
+  phoneNumber String @unique
+  isVerified Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  otpCodes    OtpCode[]
+  applications Application[]
+
+  @@map("users")
+}
+
+// OTP verification codes
+model OtpCode {
+  id          String   @id @default(cuid())
+  userId      String
+  code        String
+  phoneNumber String
+  isUsed      Boolean  @default(false)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("otp_codes")
+}
+
+// Main application form
+model Application {
+  id              String    @id @default(cuid())
+  userId          String
+  applicationNumber String @unique
+  status          ApplicationStatus @default(DRAFT)
+  
+  // Personal Information
+  firstName       String
+  surname         String
+  gender          Gender
+  dateOfBirth     DateTime
+  email           String
+  telephone       String
+  nationality     String
+  address         String
+  gpsAddress      String?
+
+  // Guardian Information
+  guardianName    String
+  guardianOccupation String
+  guardianTelephone String
+
+  // Education Information
+  highestEducation EducationLevel
+  yearCompleted   Int
+  
+  // Program Selection
+  programType     ProgramType
+  specificProgram String
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  submittedAt     DateTime?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents Document[]
+
+  @@map("applications")
+}
+
+// Document uploads
+model Document {
+  id            String @id @default(cuid())
+  applicationId String
+  documentType  DocumentType
+  fileName      String
+  originalName  String
+  fileSize      Int
+  mimeType      String
+  fileUrl       String
+  uploadedAt    DateTime @default(now())
+
+  // Relations
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+// Admin users for managing applications
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      AdminRole @default(ADMIN)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admin_users")
+}
+
+// Application review and comments
+model ApplicationReview {
+  id            String @id @default(cuid())
+  applicationId String
+  reviewerId    String
+  status        ApplicationStatus
+  comments      String?
+  reviewedAt    DateTime @default(now())
+
+  @@map("application_reviews")
+}
+
+// Enums
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum EducationLevel {
+  BECE
+  WASSCE
+  HND
+  DIPLOMA
+  DEGREE
+  OTHER
+}
+
+enum ProgramType {
+  FOUNDATIONAL
+  DIPLOMA
+  DEGREE
+}
+
+enum ApplicationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  PENDING_DOCUMENTS
+}
+
+enum DocumentType {
+  PROOF_OF_EDUCATION
+  PASSPORT_PICTURE
+  OTHER
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  REVIEWER
+}

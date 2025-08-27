@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,600&display=swap" rel="stylesheet">
+
+<head>
+  <title>Verify OTP</title>
+</head>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="img/logo1.png" alt="logo1">
+    </div>
+    <h2>OTP Verification</h2>
+    <p>A code has been sent to <b>your@email.com</b></p>
+
+    <form method="POST" id="otpForm">
+      <div class="otp-inputs">
+        <input type="text" maxlength="1" name="otp[]" required>
+        <input type="text" maxlength="1" name="otp[]" required>
+        <input type="text" maxlength="1" name="otp[]" required>
+        <input type="text" maxlength="1" name="otp[]" required>
+        <input type="text" maxlength="1" name="otp[]" required>
+        <input type="text" maxlength="1" name="otp[]" required>
+      </div>
+      <button type="submit" name="verify">Verify</button>
+      <button type="button" id="resendBtn" name="resend">Resend OTP</button>
+      
+    </form>
+
+    
+  </div>
+</body>
+</html>
