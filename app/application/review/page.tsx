@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,38 @@ import Image from "next/image"
 export default function ReviewPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState("")
+
+  // State to hold the application data
+  const [applicationData, setApplicationData] = useState({
+    personalInfo: null,
+    guardianInfo: null,
+    educationInfo: null,
+    programInfo: null
+  })
+
+  // Load data from sessionStorage when component mounts
+  useEffect(() => {
+    const loadApplicationData = () => {
+      try {
+        const personalInfo = sessionStorage.getItem('applicationPersonalInfo')
+        const guardianInfo = sessionStorage.getItem('applicationGuardianInfo')
+        const educationInfo = sessionStorage.getItem('applicationEducationInfo')
+        const programInfo = sessionStorage.getItem('applicationProgramInfo')
+
+        setApplicationData({
+          personalInfo: personalInfo ? JSON.parse(personalInfo) : null,
+          guardianInfo: guardianInfo ? JSON.parse(guardianInfo) : null,
+          educationInfo: educationInfo ? JSON.parse(educationInfo) : null,
+          programInfo: programInfo ? JSON.parse(programInfo) : null
+        })
+      } catch (error) {
+        console.error('Error loading application data:', error)
+      }
+    }
+
+    loadApplicationData()
+  }, [])
 
   const handleSubmit = async () => {
     setIsSubmitting(true)
@@ -90,8 +122,6 @@ export default function ReviewPage() {
       setIsSubmitting(false)
     }
   }
-
-  const [error, setError] = useState("")
 
   if (isSubmitted) {
     return (
@@ -207,10 +237,10 @@ export default function ReviewPage() {
                 </Button>
               </div>
               <div className="text-sm text-gray-700 space-y-1">
-                <p><strong>Name:</strong> [Entered during application]</p>
-                <p><strong>Email:</strong> [Entered during application]</p>
-                <p><strong>Phone:</strong> [Entered during application]</p>
-                <p><strong>Address:</strong> [Entered during application]</p>
+                <p><strong>Name:</strong> {applicationData.personalInfo?.firstName} {applicationData.personalInfo?.surname || 'Not provided'}</p>
+                <p><strong>Email:</strong> {applicationData.personalInfo?.email || 'Not provided'}</p>
+                <p><strong>Phone:</strong> {applicationData.personalInfo?.telephone || 'Not provided'}</p>
+                <p><strong>Address:</strong> {applicationData.personalInfo?.address || 'Not provided'}</p>
               </div>
             </div>
 
@@ -224,9 +254,9 @@ export default function ReviewPage() {
                 </Button>
               </div>
               <div className="text-sm text-gray-700 space-y-1">
-                <p><strong>Guardian Name:</strong> [Entered during application]</p>
-                <p><strong>Occupation:</strong> [Entered during application]</p>
-                <p><strong>Phone:</strong> [Entered during application]</p>
+                <p><strong>Guardian Name:</strong> {applicationData.guardianInfo?.guardianName || 'Not provided'}</p>
+                <p><strong>Occupation:</strong> {applicationData.guardianInfo?.guardianOccupation || 'Not provided'}</p>
+                <p><strong>Phone:</strong> {applicationData.guardianInfo?.guardianTelephone || 'Not provided'}</p>
               </div>
             </div>
 
@@ -240,9 +270,17 @@ export default function ReviewPage() {
                 </Button>
               </div>
               <div className="text-sm text-gray-700 space-y-1">
-                <p><strong>Highest Education:</strong> [Selected during application]</p>
-                <p><strong>Year Completed:</strong> [Selected during application]</p>
-                <p><strong>Documents:</strong> Proof of Education & Passport Photo uploaded</p>
+                <p><strong>Highest Education:</strong> {applicationData.educationInfo?.highestEducation || 'Not selected'}</p>
+                <p><strong>Year Completed:</strong> {applicationData.educationInfo?.yearCompleted || 'Not selected'}</p>
+                <p><strong>Documents:</strong> {
+                  applicationData.educationInfo?.documents && applicationData.educationInfo?.passportPhoto
+                    ? 'Proof of Education & Passport Photo uploaded'
+                    : applicationData.educationInfo?.documents
+                      ? 'Proof of Education uploaded'
+                      : applicationData.educationInfo?.passportPhoto
+                        ? 'Passport Photo uploaded'
+                        : 'No documents uploaded'
+                }</p>
               </div>
             </div>
 
@@ -256,8 +294,8 @@ export default function ReviewPage() {
                 </Button>
               </div>
               <div className="text-sm text-gray-700 space-y-1">
-                <p><strong>Program Type:</strong> [Selected during application]</p>
-                <p><strong>Specific Program:</strong> [Selected during application]</p>
+                <p><strong>Program Type:</strong> {applicationData.programInfo?.programType || 'Not selected'}</p>
+                <p><strong>Specific Program:</strong> {applicationData.programInfo?.specificProgram || 'Not selected'}</p>
               </div>
             </div>
 
@@ -267,7 +305,7 @@ export default function ReviewPage() {
                 <strong>Declaration:</strong>
               </p>
               <p className="text-sm text-blue-700 mt-2">
-                By submitting this application, I declare that all information provided is true and accurate to the best of my knowledge. 
+                By submitting this application, I declare that all information provided is true and accurate to the best of my knowledge.
                 I understand that any false information may result in the rejection of my application or dismissal from the program.
               </p>
             </div>
@@ -287,8 +325,8 @@ export default function ReviewPage() {
                 Back
               </Link>
             </Button>
-            <Button 
-              className="h-11 px-6 bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-400" 
+            <Button
+              className="h-11 px-6 bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-400"
               onClick={handleSubmit}
               disabled={isSubmitting}
             >
